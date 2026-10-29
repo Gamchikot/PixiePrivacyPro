@@ -1,0 +1,7 @@
+# Build output
+bin/
+dist/
+tests/bin/
+*.wixobj
+*.wixpdb
+*.mst

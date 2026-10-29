@@ -1,0 +1,8 @@
+LIBRARY PixieVirtualCamera
+EXPORTS
+    DllGetClassObject PRIVATE
+    DllCanUnloadNow PRIVATE
+    DllRegisterServer PRIVATE
+    DllUnregisterServer PRIVATE
+    PixieVCam_Create
+    PixieVCam_Remove

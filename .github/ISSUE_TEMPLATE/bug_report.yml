@@ -1,0 +1,32 @@
+name: Bug report / Ошибка
+description: Something does not work as expected / Что-то работает не так
+labels: [bug]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Pixie Privacy Pro version / Версия
+      description: Shown at the bottom of the window / Внизу окна программы
+      placeholder: "0.15.5"
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version / Версия Windows
+      placeholder: "Windows 11 24H2"
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened / Что произошло
+      description: Steps, what you expected and what you saw / Шаги, что ожидали и что получили
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Journal lines / Строки журнала
+      description: From Log → Open file / Из «Журнал → Открыть файл»
+      render: text

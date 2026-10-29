@@ -1,0 +1,77 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+ <!-- Built twice by package.ps1 (-dLang=en and -dLang=ru, same ProductCode); the Russian build becomes a language transform inside the English MSI. -->
+ <?if $(var.Lang) = "en" ?>
+  <?define LangId="1033" ?>
+  <?define Downgrade="A newer version of Pixie Privacy Pro is already installed." ?>
+  <?define Need64="Windows x64 is required." ?>
+  <?define UnityTaken="Unity Video Capture is already installed. This build uses the same virtual camera slot; remove the old Unity Capture first." ?>
+  <?define GuardDescription="Disables only the EMEET PIXY USB recording device (328F:00C0 MI_02)." ?>
+ <?else ?>
+  <?define LangId="1049" ?>
+  <?define Downgrade="Уже установлена новая версия Pixie Privacy Pro." ?>
+  <?define Need64="Требуется Windows x64." ?>
+  <?define UnityTaken="Уже установлена Unity Video Capture. Эта сборка Pro использует тот же слот виртуальной камеры; сначала удалите прежнюю Unity Capture." ?>
+  <?define GuardDescription="Отключает только устройство записи USB EMEET PIXY (328F:00C0 MI_02)." ?>
+ <?endif ?>
+ <Product Id="$(var.ProductCode)" Name="Pixie Privacy Pro" Language="$(var.LangId)" Version="$(var.Version)" Manufacturer="Pixie Privacy Pro" UpgradeCode="F3F281CD-6740-4CEE-8618-6AE85D43EB0C">
+  <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+  <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="$(var.Downgrade)" />
+  <MediaTemplate EmbedCab="yes" />
+  <Icon Id="ProIcon.exe" SourceFile="PixiePrivacyPro.exe" />
+  <Property Id="ARPPRODUCTICON" Value="ProIcon.exe" />
+  <Condition Message="$(var.Need64)">Installed OR VersionNT64</Condition>
+  <Property Id="EXISTING_CAMERA"><RegistrySearch Id="FindUnityCamera" Root="HKLM" Key="SOFTWARE\Classes\CLSID\{5c2cd55c-92ad-4999-8666-912bd3e70010}" Type="raw" Win64="yes" /></Property>
+  <Condition Message="$(var.UnityTaken)">Installed OR NOT EXISTING_CAMERA OR EXISTING_CAMERA = "Pixie Privacy Pro Camera"</Condition>
+  <Directory Id="TARGETDIR" Name="SourceDir">
+   <Directory Id="ProgramFiles64Folder"><Directory Id="INSTALLFOLDER" Name="Pixie Privacy Pro">
+    <Component Id="App" Guid="9A4C349C-85D6-4D55-B0B5-014F25333371" Win64="yes">
+     <File Id="AppExe" Source="PixiePrivacyPro.exe" KeyPath="yes">
+      <Shortcut Id="DesktopLink" Directory="DesktopFolder" Name="Pixie Privacy Pro" Advertise="yes" WorkingDirectory="INSTALLFOLDER" Icon="ProIcon.exe" IconIndex="0" />
+      <Shortcut Id="MenuLink" Directory="ProgramMenuFolder" Name="Pixie Privacy Pro" Advertise="yes" WorkingDirectory="INSTALLFOLDER" Icon="ProIcon.exe" IconIndex="0" />
+     </File>
+     <File Source="hidapi.dll" /><File Source="AForge.dll" /><File Source="AForge.Video.dll" /><File Source="AForge.Video.DirectShow.dll" />
+     <File Id="AppIconFile" Source="PixiePrivacyPro.ico" />
+     <File Id="VoiceSound" Source="dark-voice.mp3" />
+     <File Source="README.md" /><File Source="LICENSE" Name="LICENSE.txt" /><File Source="HIDAPI-LICENSE.txt" /><File Source="UNITYCAPTURE-LICENSE.txt" /><File Source="AFORGE-License.txt" /><File Source="AFORGE-lgpl-3.0.txt" /><File Source="AFORGE-gpl-3.0.txt" /><File Source="THIRD-PARTY.txt" />
+     <File Source="AForge.NET-source.zip" />
+    </Component>
+    <Component Id="Guard" Guid="81F590D4-994C-4204-8399-EC8B90B12392" Win64="yes">
+     <File Id="GuardExe" Source="PixieMicGuard.exe" KeyPath="yes" />
+     <ServiceInstall Id="InstallGuard" Name="PixiePrivacyProMicGuard" DisplayName="Pixie Privacy Pro — microphone protection" Type="ownProcess" Start="auto" ErrorControl="normal" Account="LocalSystem" Description="$(var.GuardDescription)">
+      <util:ServiceConfig FirstFailureActionType="restart" SecondFailureActionType="restart" ThirdFailureActionType="restart" RestartServiceDelayInSeconds="10" ResetPeriodInDays="1" />
+     </ServiceInstall>
+     <ServiceControl Id="ControlGuard" Name="PixiePrivacyProMicGuard" Start="install" Stop="both" Remove="uninstall" Wait="yes" />
+    </Component>
+    <Component Id="Virtual64" Guid="43EA750B-3FB7-48C3-ACF8-597490391F06" Win64="yes"><File Id="Filter64" Source="UnityCaptureFilter64.dll" KeyPath="yes" /></Component>
+    <!-- Media Foundation virtual camera source, loaded by the Windows Camera Frame Server (Windows 11). -->
+    <Component Id="VirtualMF" Guid="5E0A8C61-7E0B-4C4B-9A43-2A1F7C3B9D52" Win64="yes">
+     <File Id="FilterMF" Source="PixieVirtualCamera.dll" KeyPath="yes" />
+     <RegistryKey Root="HKLM" Key="SOFTWARE\Classes\CLSID\{6D08C5CA-F5DE-4D43-BA53-B603B78E6DCD}" ForceDeleteOnUninstall="yes">
+      <RegistryValue Type="string" Value="Pixie Privacy Pro Camera (MF)" />
+      <RegistryKey Key="InprocServer32">
+       <RegistryValue Type="string" Value="[#FilterMF]" />
+       <RegistryValue Name="ThreadingModel" Type="string" Value="Both" />
+      </RegistryKey>
+     </RegistryKey>
+    </Component>
+    <Component Id="Virtual32" Guid="B87994D7-8466-49F7-A44C-C65967B04FBA" Win64="yes"><File Id="Filter32" Source="UnityCaptureFilter32.dll" KeyPath="yes" /></Component>
+   </Directory></Directory>
+   <Directory Id="DesktopFolder" /><Directory Id="ProgramMenuFolder" /><Directory Id="SystemFolder" /><Directory Id="System64Folder" />
+  </Directory>
+  <Feature Id="Complete" Title="Pixie Privacy Pro" Level="1"><ComponentRef Id="App" /><ComponentRef Id="Guard" /><ComponentRef Id="Virtual64" /><ComponentRef Id="VirtualMF" /><ComponentRef Id="Virtual32" /></Feature>
+  <CustomAction Id="Register64" Directory="System64Folder" ExeCommand="&quot;[System64Folder]regsvr32.exe&quot; /s &quot;/i:UnityCaptureName=Pixie Privacy Pro Camera&quot; &quot;[#Filter64]&quot;" Execute="deferred" Impersonate="no" Return="check" />
+  <CustomAction Id="Register32" Directory="SystemFolder" ExeCommand="&quot;[SystemFolder]regsvr32.exe&quot; /s &quot;/i:UnityCaptureName=Pixie Privacy Pro Camera&quot; &quot;[#Filter32]&quot;" Execute="deferred" Impersonate="no" Return="check" />
+  <CustomAction Id="Unregister64" Directory="System64Folder" ExeCommand="&quot;[System64Folder]regsvr32.exe&quot; /s /u &quot;[#Filter64]&quot;" Execute="deferred" Impersonate="no" Return="check" />
+  <CustomAction Id="Unregister32" Directory="SystemFolder" ExeCommand="&quot;[SystemFolder]regsvr32.exe&quot; /s /u &quot;[#Filter32]&quot;" Execute="deferred" Impersonate="no" Return="check" />
+  <!-- Runs as the uninstalling user before files-in-use checks: removes the per-user autostart value and closes the tray app. -->
+  <CustomAction Id="CleanupUser" FileKey="AppExe" ExeCommand="--cleanup" Execute="immediate" Return="ignore" />
+  <InstallExecuteSequence>
+   <Custom Action="CleanupUser" Before="InstallValidate">REMOVE="ALL" AND NOT UPGRADINGPRODUCTCODE</Custom>
+   <Custom Action="Unregister64" Before="RemoveFiles">REMOVE="ALL"</Custom><Custom Action="Unregister32" Before="Unregister64">REMOVE="ALL"</Custom>
+   <Custom Action="Register64" After="InstallFiles">NOT REMOVE="ALL"</Custom><Custom Action="Register32" After="Register64">NOT REMOVE="ALL"</Custom>
+  </InstallExecuteSequence>
+  <UIRef Id="WixUI_Minimal" /><WixVariable Id="WixUILicenseRtf" Value="installer\License.$(var.Lang).rtf" />
+ </Product>
+</Wix>
+

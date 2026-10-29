@@ -1,0 +1,7 @@
+# Sources keep CRLF as written on Windows; binaries are never touched.
+* -text
+*.png binary
+*.ico binary
+*.mp3 binary
+*.dll binary
+*.zip binary

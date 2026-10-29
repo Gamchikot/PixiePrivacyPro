@@ -1,0 +1,89 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  LLVM_MINGW_VERSION: '20261006'
+  LLVM_MINGW_SHA256: 317492c456aa27ee607a5919f1d2d38dcdc1112516a24d0bf4b00d078f52d17a
+  WIX_RELEASE: wix3141rtm
+  WIX_SHA256: 6ac824e1642d6f7277d0ed7ea09411a508f6116ba6fae0aa5f2c7daa2ff43d31
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache tools
+        id: tools
+        uses: actions/cache@v4
+        with:
+          path: tools
+          key: tools-${{ env.LLVM_MINGW_SHA256 }}-${{ env.WIX_SHA256 }}
+
+      - name: Download llvm-mingw and WiX 3.14
+        if: steps.tools.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force tools | Out-Null
+          $mingw = "llvm-mingw-$env:LLVM_MINGW_VERSION-ucrt-x86_64"
+          Invoke-WebRequest "https://github.com/mstorsjo/llvm-mingw/releases/download/$env:LLVM_MINGW_VERSION/$mingw.zip" -OutFile tools\mingw.zip
+          Invoke-WebRequest "https://github.com/wixtoolset/wix3/releases/download/$env:WIX_RELEASE/wix314-binaries.zip" -OutFile tools\wix.zip
+          # Tools are used only if they match the pinned checksums.
+          if((Get-FileHash tools\mingw.zip -Algorithm SHA256).Hash -ne $env:LLVM_MINGW_SHA256){throw 'llvm-mingw checksum mismatch'}
+          if((Get-FileHash tools\wix.zip -Algorithm SHA256).Hash -ne $env:WIX_SHA256){throw 'WiX checksum mismatch'}
+          Expand-Archive tools\mingw.zip tools
+          Expand-Archive tools\wix.zip tools\wix
+          Remove-Item tools\mingw.zip, tools\wix.zip
+
+      - name: Point the scripts at the tools
+        shell: pwsh
+        run: |
+          "LLVM_MINGW=$PWD\tools\llvm-mingw-$env:LLVM_MINGW_VERSION-ucrt-x86_64" >> $env:GITHUB_ENV
+          "WIX=$PWD\tools\wix" >> $env:GITHUB_ENV
+
+      - name: Build and run offline tests
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        shell: powershell
+        run: .\build.ps1 -Test
+
+      - name: Build installer
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: powershell
+        run: .\package.ps1
+
+      - name: Upload installer
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer
+          path: dist/*
+
+  release:
+    # A tag v1.2.3 makes a draft release with the MSI and its checksum; it is published by hand after a look.
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: installer
+          path: dist
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          notes="$(awk -v v="$version" '$0 ~ "^## \\[?"v"\\]?" {on=1; next} on && /^## / {exit} on' CHANGELOG.md)"
+          gh release create "$GITHUB_REF_NAME" dist/*.msi dist/SHA256-*.json --draft --title "Pixie Privacy Pro $version" --notes "$notes"
