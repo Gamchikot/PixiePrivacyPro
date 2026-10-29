@@ -818,7 +818,9 @@ public class MainWindow : Form {
             var camera=CapabilityUsage.Active(CapabilityUsage.Camera,Application.ExecutablePath);
             var mic=CapabilityUsage.Active(CapabilityUsage.Microphone,Application.ExecutablePath);
             JournalChanges(L.T("камеру"),cameraApps,camera);
-            JournalChanges(L.T("микрофон"),microphoneApps,mic);
+            // Windows does not say which microphone an app took. While the PIXY microphone is disabled no app can use it,
+            // so other microphones are left out of the journal (the Microphone page still lists them).
+            if(MicrophoneGuard.Allowed) JournalChanges(L.T("микрофон"),microphoneApps,mic);
             cameraApps=camera;microphoneApps=mic;
             usage.Text=(consumerWasActive?L.T("Камеру Pixie читает: ")+(pixieReaders.Count==0?L.T("приложение"):CapabilityUsage.Describe(pixieReaders))+" · ":"")+L.T("Сейчас используют камеру: ")+CapabilityUsage.Describe(camera)+L.T(" · микрофон: ")+CapabilityUsage.Describe(mic);
             usage.ForeColor=consumerWasActive||camera.Count>0||mic.Count>0?Color.Gold:Color.LightGray;
