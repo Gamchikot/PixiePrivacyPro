@@ -852,7 +852,7 @@ public class ModernWindow : Window {
     ListBox journalList;TextBox journalSearch;long journalLength=-1;readonly List<string> journalLines=new List<string>();DateTime journalChecked;
     FrameworkElement JournalPage() {
         var bar=new Grid {Margin=new Thickness(0,12,0,12)};
-        bar.ColumnDefinitions.Add(new ColumnDefinition());bar.ColumnDefinitions.Add(new ColumnDefinition {Width=GridLength.Auto});
+        bar.ColumnDefinitions.Add(new ColumnDefinition());bar.ColumnDefinitions.Add(new ColumnDefinition {Width=GridLength.Auto});bar.ColumnDefinitions.Add(new ColumnDefinition {Width=GridLength.Auto});
         var searchBox=new Border {CornerRadius=new CornerRadius(10),Padding=new Thickness(10,0,10,0),Height=36};
         searchBox.SetResourceReference(Border.BackgroundProperty,"Field");
         var searchRow=new DockPanel();
@@ -863,6 +863,15 @@ public class ModernWindow : Window {
         searchRow.Children.Add(journalSearch);searchBox.Child=searchRow;
         bar.Children.Add(searchBox);
         var open=Ui.Soft("folder",L.T("Открыть файл"),()=>app.ShowJournalFile());open.Margin=new Thickness(10,0,0,0);Grid.SetColumn(open,1);bar.Children.Add(open);
+        // Clearing asks once: the first click turns the button red for a few seconds, the second click clears.
+        Button clear=null;bool armed=false;var disarm=new DispatcherTimer {Interval=TimeSpan.FromSeconds(4)};
+        Action reset=()=>{armed=false;disarm.Stop();clear.Content=L.T("Очистить");clear.ClearValue(Control.BackgroundProperty);clear.ClearValue(Control.ForegroundProperty);};
+        clear=Ui.Soft(L.T("Очистить"),()=>{
+            if(!armed) {armed=true;clear.Content=L.T("Точно очистить?");clear.Background=Ui.B(Ui.Red);clear.Foreground=Brushes.White;disarm.Start();return;}
+            reset();app.ClearJournal();LoadJournal(true);
+        });
+        disarm.Tick+=delegate {reset();};
+        clear.Margin=new Thickness(10,0,0,0);clear.MinWidth=150;Grid.SetColumn(clear,2);bar.Children.Add(clear);
         journalList=new ListBox {BorderThickness=new Thickness(0),Background=Brushes.Transparent,Height=520,Padding=new Thickness(0,4,0,4)};
         ScrollViewer.SetHorizontalScrollBarVisibility(journalList,ScrollBarVisibility.Disabled);
         // The wheel still scrolls; the classic Windows scroll bar would clash with the cards.

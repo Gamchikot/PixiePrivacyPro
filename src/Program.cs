@@ -378,6 +378,7 @@ public class MainWindow : Form {
     public bool AlertRunning {get {return (alert!=null && !alert.IsDisposed) || DateTime.UtcNow<soundUntil;}}
     public bool AlertEnabled {get {return Preferences.GetFlag(Preferences.AlertPicture,true) || Preferences.GetFlag(Preferences.AlertSound,false);}}
     public void ShowJournalFile() {OpenJournal();}
+    public void ClearJournal() {EventJournal.Clear(L.T("Журнал очищен"));}
     public void SetCropShape(string shape) {shapes.SelectedItem=shape;}
     public void SetCropSize(int percent) {size.Value=Math.Max(size.Minimum,Math.Min(size.Maximum,percent));}
     public void SetMirror(bool value) {mirrorBox.Checked=value;}
@@ -1070,6 +1071,9 @@ public class MainWindow : Form {
         exiting=true;Close();
     }
     protected override void OnShown(EventArgs e) {
+        if(Program.ShowEvent!=null) ThreadPool.RegisterWaitForSingleObject(Program.ShowEvent,delegate {
+            try {if(!IsDisposed && !exiting) BeginInvoke((MethodInvoker)OpenWindow);} catch(InvalidOperationException) {}
+        },null,-1,false);
         bool open=!hidden;
         if(!layoutOnly || hidden) {hidden=false;Hide();}
         base.OnShown(e);
@@ -1108,6 +1112,10 @@ static class Program {
     public static readonly int ExitMessage=RegisterWindowMessage("PixiePrivacyPro.Exit.v1");
     [DllImport("user32.dll")] static extern bool SetProcessDpiAwarenessContext(IntPtr value);
     public static string StartPage;
+    // Signalled by a second start; the broadcast window message alone did not always reach the hidden tray window.
+    const string ShowEventName="Local\\PixiePrivacyPro.Show";
+    public static EventWaitHandle ShowEvent;
+    [DllImport("user32.dll")] static extern bool AllowSetForegroundWindow(int processId);
     [STAThread] static void Main(string[] args) {
         if(Array.IndexOf(args,"--cleanup")>=0) {Cleanup();return;}
         // After a language change the old instance is still closing: wait for it before taking the single-instance mutex.
@@ -1121,7 +1129,15 @@ static class Program {
         // Per-monitor DPI v2: the WPF window stays sharp at 125–200 %; tray icons are drawn for the real size.
         try {SetProcessDpiAwarenessContext((IntPtr)(-4));} catch(EntryPointNotFoundException) {}
         bool first;using(var mutex=new Mutex(true,"Local\\PixiePrivacyPro",out first)) {
-            if(!first){PostMessage((IntPtr)0xffff,ShowMessage,IntPtr.Zero,IntPtr.Zero);return;}
+            if(!first){
+                // A second start opens the window of the running instance and lets it come to the front.
+                AllowSetForegroundWindow(-1);
+                EventWaitHandle show;
+                if(EventWaitHandle.TryOpenExisting(ShowEventName,out show)) using(show) show.Set();
+                else PostMessage((IntPtr)0xffff,ShowMessage,IntPtr.Zero,IntPtr.Zero);
+                return;
+            }
+            ShowEvent=new EventWaitHandle(false,EventResetMode.AutoReset,ShowEventName);
             Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainWindow(Array.IndexOf(args,"--tray")>=0));
         }

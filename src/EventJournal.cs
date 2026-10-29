@@ -24,4 +24,11 @@ public static class EventJournal {
             } catch {}
         }
     }
+    // Deletes the journal and its rotated copy; the first line of the new journal says so.
+    public static void Clear(string note) {
+        lock(gate) {
+            try {File.Delete(FilePath+".1");File.Delete(FilePath);} catch {}
+        }
+        Write(note);
+    }
 }

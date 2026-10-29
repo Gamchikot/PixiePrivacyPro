@@ -14,7 +14,7 @@ First public release. / Первый публичный релиз.
 - "I see you" warning when the lens opens outside Pixie Pro, with separate picture and sound switches.
 - Microphone protection service that disables only the PIXY recording device; or microphone on with the chosen processing.
 - Auto-close when unused, on lock, sleep and screen off; camera timer; privacy at power-on.
-- Today's statistics and a searchable journal of camera and microphone use (microphone use is logged only while the PIXY microphone is on).
+- Today's statistics and a searchable journal of camera and microphone use (microphone use is logged only while the PIXY microphone is on), with a Clear button.
 - Windows 11 look, light and dark themes, English and Russian interface; one MSI that follows the Windows language.
 
 **Русский**
@@ -25,7 +25,7 @@ First public release. / Первый публичный релиз.
 - Предупреждение «Я вижу тебя», если объектив открыли не через Pixie Pro; картинка и звук включаются отдельно.
 - Служба защиты микрофона: отключает только устройство записи PIXY, либо микрофон включён с выбранной обработкой.
 - Автозакрытие без использования, при блокировке, сне и выключении экрана; таймер камеры; приватность при включении компьютера.
-- Статистика за сегодня и журнал с поиском (кто пользуется микрофоном, записывается только пока микрофон PIXY включён).
+- Статистика за сегодня и журнал с поиском (кто пользуется микрофоном, записывается только пока микрофон PIXY включён) и кнопкой «Очистить».
 - Стиль Windows 11, светлая и тёмная темы, русский и английский интерфейс; один MSI, который выбирает язык по Windows.
 
 [0.15.5]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.5
