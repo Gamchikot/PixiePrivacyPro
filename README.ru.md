@@ -110,16 +110,10 @@ GitHub Actions собирает каждый коммит и создаёт че
 
 **Микрофон заглушен или отключён?** Отключён в Windows службой, поэтому ни одна программа его не откроет. Это программный выключатель, а не аппаратный.
 
-## Политика подписи кода (Code signing policy)
+## Подпись кода
 
-Pixie Privacy Pro подала заявку в программу SignPath Foundation для открытых проектов. После одобрения:
-free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
-До этого релизы не подписаны — сверяйте SHA-256 из релиза.
-
-- Подписываются только файлы, собранные [GitHub Actions](.github/workflows/build.yml) из этого репозитория: `PixiePrivacyPro.exe`,
-  `PixieMicGuard.exe`, `PixieVirtualCamera.dll` и MSI. Сторонние библиотеки остаются как есть.
-- Авторы и ревьюеры: [Gamchikot](https://github.com/Gamchikot). Утверждает подпись: [Gamchikot](https://github.com/Gamchikot) (владелец репозитория).
-  Каждый релиз подписывается только после ручного подтверждения.
+Релизы не подписаны цифровой подписью, поэтому Windows SmartScreen может предупредить о «неизвестном издателе». Каждый MSI
+собирается [GitHub Actions](.github/workflows/build.yml) из этого репозитория; сверьте его SHA-256 с указанным в релизе.
 
 ## Конфиденциальность
 

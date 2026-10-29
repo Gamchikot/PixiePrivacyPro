@@ -107,16 +107,10 @@ The version comes from `version.txt`. GitHub Actions builds every push and makes
 
 **Is the microphone muted or disabled?** Disabled in Windows by a service, so no app can open it. It is a software switch, not a hardware one.
 
-## Code signing policy
+## Code signing
 
-Pixie Privacy Pro has applied to the SignPath Foundation program for open-source projects. Once accepted:
-free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
-Until then, releases are not signed — compare the SHA-256 from the release instead.
-
-- Signed files are built by [GitHub Actions](.github/workflows/build.yml) from this repository only: `PixiePrivacyPro.exe`,
-  `PixieMicGuard.exe`, `PixieVirtualCamera.dll` and the MSI. Third-party libraries keep their original state.
-- Committers and reviewers: [Gamchikot](https://github.com/Gamchikot). Approvers: [Gamchikot](https://github.com/Gamchikot) (repository owner).
-  Every release signing is approved by hand.
+Releases are not code-signed, so Windows SmartScreen may show an "unknown publisher" warning. Every MSI is built by
+[GitHub Actions](.github/workflows/build.yml) from this repository; compare its SHA-256 with the one published in the release.
 
 ## Privacy
 
