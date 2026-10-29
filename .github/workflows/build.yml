@@ -24,7 +24,7 @@ jobs:
 
       - name: Cache tools
         id: tools
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: tools
           key: tools-${{ env.LLVM_MINGW_SHA256 }}-${{ env.WIX_SHA256 }}
