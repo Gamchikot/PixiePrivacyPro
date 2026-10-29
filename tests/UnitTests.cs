@@ -12,6 +12,8 @@ class UnitTests {
         if(!condition) failed++;
     }
     static int Main() {
+        // The expected texts are the Russian originals, whatever the Windows language of the test machine.
+        L.English=false;
         Crop();
         Alerts();
         Capture();
