@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- SignPath artifact configuration "msi" (kept here for review; the active copy lives in SignPath).
+     The GitHub artifact is a ZIP with one MSI. Pixie Privacy Pro's own program files inside the MSI are signed first,
+     then the MSI. Third-party files (AForge, hidapi, Unity Capture) are left as their authors published them. -->
+<artifact-configuration xmlns="http://signpath.io/artifact-configuration/v1">
+  <parameters>
+    <parameter name="version" required="true" />
+  </parameters>
+  <zip-file>
+    <msi-file path="PixiePrivacyPro-Setup-${version}.msi">
+      <pe-file-set>
+        <include path="PixiePrivacyPro.exe" product-name="Pixie Privacy Pro" product-version="${version}" />
+        <include path="PixieMicGuard.exe" product-name="Pixie Privacy Pro" product-version="${version}" />
+        <include path="PixieVirtualCamera.dll" product-name="Pixie Privacy Pro" product-version="${version}" />
+        <for-each>
+          <authenticode-sign />
+        </for-each>
+      </pe-file-set>
+      <authenticode-sign />
+    </msi-file>
+  </zip-file>
+</artifact-configuration>

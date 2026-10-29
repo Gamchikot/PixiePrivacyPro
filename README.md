@@ -107,6 +107,24 @@ The version comes from `version.txt`. GitHub Actions builds every push and makes
 
 **Is the microphone muted or disabled?** Disabled in Windows by a service, so no app can open it. It is a software switch, not a hardware one.
 
+## Code signing policy
+
+Pixie Privacy Pro has applied to the SignPath Foundation program for open-source projects. Once accepted:
+free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org).
+Until then, releases are not signed — compare the SHA-256 from the release instead.
+
+- Signed files are built by [GitHub Actions](.github/workflows/build.yml) from this repository only: `PixiePrivacyPro.exe`,
+  `PixieMicGuard.exe`, `PixieVirtualCamera.dll` and the MSI. Third-party libraries keep their original state.
+- Committers and reviewers: [Gamchikot](https://github.com/Gamchikot). Approvers: [Gamchikot](https://github.com/Gamchikot) (repository owner).
+  Every release signing is approved by hand.
+
+## Privacy
+
+This program will not transfer any information to other networked systems unless specifically requested by the user or
+the person installing or operating it. It reads Windows' camera and microphone usage records and writes its journal and
+settings only on this computer (`%LOCALAPPDATA%\PixiePrivacyPro`, `HKCU\Software\PixiePrivacyPro`). The installer adds a virtual
+camera and a service that disables the PIXY microphone; uninstalling the program removes both (a microphone that was disabled stays off until you turn it on in Windows sound settings).
+
 ## Contributing
 
 Bug reports and ideas are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md). Security issues: [SECURITY.md](SECURITY.md).

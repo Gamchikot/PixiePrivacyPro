@@ -20,6 +20,7 @@ class UiShots {
         L.English=Array.IndexOf(args,"--en")>=0;
         folder=args.Length>0 && args[0]!="--en"?args[0]:"shots";
         Directory.CreateDirectory(folder);
+        SampleJournal();
         var app=new Application {ShutdownMode=ShutdownMode.OnExplicitShutdown};
         app.Startup+=async delegate {
             try {await Run();Console.WriteLine("PASS UI shots in "+Path.GetFullPath(folder));}
@@ -27,6 +28,30 @@ class UiShots {
             app.Shutdown();
         };
         app.Run();
+    }
+    // The screenshots show a made-up journal, never the one of the computer they are taken on.
+    static void SampleJournal() {
+        EventJournal.FilePath=Path.Combine(Path.GetTempPath(),"PixieUiShots-"+Guid.NewGuid().ToString("N")+".log");
+        var today=DateTime.Today;
+        var lines=new[]{
+            Tuple.Create(9,12,L.T("Pixie Privacy Pro запущена")),
+            Tuple.Create(9,12,L.T("При запуске: ")+L.T("Приватность включена")),
+            Tuple.Create(10,30,L.T("Выход из приватности: приложение открыло камеру Pixie")),
+            Tuple.Create(10,30,L.T("Камера открыта, обычный режим")),
+            Tuple.Create(10,31,"zoom.exe"+L.T(" начал использовать ")+L.T("камеру")),
+            Tuple.Create(11,4,"zoom.exe"+L.T(" перестал использовать ")+L.T("камеру")),
+            Tuple.Create(11,4,L.T("Объектив закрыт: камеру Pixie никто не использует")),
+            Tuple.Create(14,20,L.T("Камера открыта, ожидание видео")+L.T(" (изменено не через Pixie Pro)")),
+            Tuple.Create(14,21,L.T("Объектив закрыт: камеру никто не использует")),
+            Tuple.Create(16,45,L.T("Выход из приватности: приложение открыло камеру Pixie")),
+            Tuple.Create(16,45,L.T("Камера открыта, обычный режим")),
+            Tuple.Create(17,10,L.T("Объектив закрыт: камеру Pixie никто не использует"))};
+        var text=new System.Text.StringBuilder();
+        foreach(var line in lines) {
+            var at=today.AddHours(line.Item1).AddMinutes(line.Item2);
+            if(at<=DateTime.Now) text.Append(at.ToString("yyyy-MM-dd HH:mm:ss")+"  "+line.Item3+Environment.NewLine);
+        }
+        File.WriteAllText(EventJournal.FilePath,text.ToString(),System.Text.Encoding.UTF8);
     }
     static async Task Run() {
         using(var main=new MainWindow(false,true)) {

@@ -9,7 +9,34 @@ try {
     $bin=Join-Path $PSScriptRoot 'bin'
     New-Item -ItemType Directory -Force $bin | Out-Null
     # version.txt is the single source for the assemblies, the MSI and the package names.
-    Set-Content (Join-Path $bin 'Version.cs') "[assembly:System.Reflection.AssemblyVersion(`"$version.0`")]`r`n[assembly:System.Reflection.AssemblyFileVersion(`"$version.0`")]`r`n[assembly:System.Reflection.AssemblyInformationalVersion(`"$version`")]" -Encoding utf8
+    # Every signed file carries the product name and version (SignPath checks them).
+    $product='Pixie Privacy Pro';$company='Pixie Privacy Pro authors';$copyright='Copyright (C) 2026 Pixie Privacy Pro authors. GPL-3.0-or-later.'
+    Set-Content (Join-Path $bin 'Version.cs') "[assembly:System.Reflection.AssemblyVersion(`"$version.0`")]`r`n[assembly:System.Reflection.AssemblyFileVersion(`"$version.0`")]`r`n[assembly:System.Reflection.AssemblyInformationalVersion(`"$version`")]`r`n[assembly:System.Reflection.AssemblyProduct(`"$product`")]`r`n[assembly:System.Reflection.AssemblyCompany(`"$company`")]`r`n[assembly:System.Reflection.AssemblyCopyright(`"$copyright`")]" -Encoding utf8
+    $numbers=($version.Split('.')+@('0','0','0','0'))[0..3] -join ','
+    Set-Content (Join-Path $bin 'PixieVCam.rc') @"
+1 VERSIONINFO
+FILEVERSION $numbers
+PRODUCTVERSION $numbers
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "040904b0"
+    BEGIN
+      VALUE "CompanyName", "$company"
+      VALUE "FileDescription", "Pixie Privacy Pro Media Foundation camera"
+      VALUE "FileVersion", "$version.0"
+      VALUE "LegalCopyright", "$copyright"
+      VALUE "OriginalFilename", "PixieVirtualCamera.dll"
+      VALUE "ProductName", "$product"
+      VALUE "ProductVersion", "$version"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x409, 1200
+  END
+END
+"@ -Encoding ascii
     $compiler='C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe'
     $wpf='C:\Windows\Microsoft.NET\Framework64\v4.0.30319\WPF'
     $mingw=$env:LLVM_MINGW
@@ -20,7 +47,9 @@ try {
     $references='/reference:System.Windows.Forms.dll','/reference:System.Drawing.dll','/reference:System.Management.dll','/reference:System.ServiceProcess.dll',"/reference:$wpf\System.Speech.dll","/reference:$wpf\PresentationCore.dll","/reference:$wpf\PresentationFramework.dll","/reference:$wpf\WindowsBase.dll","/reference:$wpf\WindowsFormsIntegration.dll",'/reference:System.Xaml.dll',"/reference:$bin\AForge.dll","/reference:$bin\AForge.Video.dll","/reference:$bin\AForge.Video.DirectShow.dll",'/resource:assets\eye.png,eye.png'
     $appSources=@("$bin\Version.cs")+('Lang','Pixy','Program','Video','Overlay','MicrophoneGuard','CapabilityUsage','EventJournal','Preferences','TrayIcons','MfCamera','Placeholder','Readers','AlertSound','TrustedAppsDialog','HotKeySetting','Ui','ModernWindow','ControlCenter' | ForEach-Object {"src\$_.cs"})
     # Media Foundation virtual camera source (native). llvm-mingw links the C++ runtime statically.
-    & "$mingw\bin\x86_64-w64-mingw32-clang++.exe" -std=c++17 -O2 -Wall -Wno-unknown-pragmas -Wno-delete-non-abstract-non-virtual-dtor -shared -static -o "$bin\PixieVirtualCamera.dll" native\PixieVCam.cpp native\PixieVCam.def -lmfplat -lmfuuid -lole32 -luuid -ladvapi32 -lshell32
+    & "$mingw\bin\x86_64-w64-mingw32-windres.exe" "$bin\PixieVCam.rc" -O coff -o "$bin\PixieVCam.res.o"
+    if($LASTEXITCODE -ne 0){throw 'Virtual camera resource compilation failed'}
+    & "$mingw\bin\x86_64-w64-mingw32-clang++.exe" -std=c++17 -O2 -Wall -Wno-unknown-pragmas -Wno-delete-non-abstract-non-virtual-dtor -shared -static -o "$bin\PixieVirtualCamera.dll" native\PixieVCam.cpp "$bin\PixieVCam.res.o" native\PixieVCam.def -lmfplat -lmfuuid -lole32 -luuid -ladvapi32 -lshell32
     if($LASTEXITCODE -ne 0){throw 'Virtual camera DLL compilation failed'}
     & $compiler /nologo /codepage:65001 /target:winexe /platform:x64 /unsafe /main:Program /win32icon:assets\PixiePrivacyPro.ico "/out:$bin\PixiePrivacyPro.exe" $references $appSources
     if($LASTEXITCODE -ne 0){throw 'App compilation failed'}

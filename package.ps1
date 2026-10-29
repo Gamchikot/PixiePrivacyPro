@@ -32,5 +32,5 @@ try {
     if($LASTEXITCODE -ne 0){throw 'Embedding the Russian transform failed'}
     Remove-Item $built['en'],$built['ru'],$mst,.\dist\Installer-*.wixpdb,.\dist\Installer-*.wixobj -ErrorAction SilentlyContinue
     $msis=@($msi)
-    Get-FileHash $msis | Select-Object Hash,Path | ConvertTo-Json | Set-Content ".\dist\SHA256-$version.json"
+    Get-FileHash $msis | Select-Object Hash,@{n='File';e={Split-Path $_.Path -Leaf}} | ConvertTo-Json | Set-Content ".\dist\SHA256-$version.json"
 } finally {Pop-Location}
