@@ -2,6 +2,16 @@
 
 All notable changes are listed here. Versions follow `version.txt`.
 
+## [0.15.9] — 2026-10-30
+
+**English**
+
+- New program icon: a winking PIXY on a green tile, for the program, shortcuts, the installer, the window title and the sidebar logo. The tray icons are unchanged.
+
+**Русский**
+
+- Новая иконка программы: подмигивающая PIXY на зелёном фоне — у программы, ярлыков, установщика, в заголовке окна и логотипе боковой панели. Значки в трее не изменились.
+
 ## [0.15.8] — 2026-10-30
 
 **English**
@@ -70,6 +80,7 @@ First public release. / Первый публичный релиз.
 - Статистика за сегодня и журнал с поиском (кто пользуется микрофоном, записывается только пока микрофон PIXY включён) и кнопкой «Очистить».
 - Стиль Windows 11, светлая и тёмная темы, русский и английский интерфейс; один MSI, который выбирает язык по Windows.
 
+[0.15.9]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.9
 [0.15.8]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.8
 [0.15.7]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.7
 [0.15.6]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.6

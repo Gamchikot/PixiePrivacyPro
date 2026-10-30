@@ -41,7 +41,7 @@ public class ModernWindow : Window {
         FontFamily=new FontFamily("Segoe UI Variable Text, Segoe UI");
         SetResourceReference(BackgroundProperty,"Content");
         UseLayoutRounding=true;
-        try {Icon=BitmapFrame.Create(new Uri(System.Windows.Forms.Application.ExecutablePath.Replace(".exe",".ico")));} catch {}
+        try {Icon=BitmapFrame.Create(new Uri(IconPath));} catch {}
         Resources.MergedDictionaries.Add(new ResourceDictionary());
         Ui.ApplyTheme(Resources,Ui.Dark);
         // The system caption buttons were drawn under the content and barely showed, so the window draws its own.
@@ -167,9 +167,7 @@ public class ModernWindow : Window {
         side.SetResourceReference(Border.BackgroundProperty,"Sidebar");side.SetResourceReference(Border.BorderBrushProperty,"SideLine");
         var dock=new DockPanel {Margin=new Thickness(14,44,14,18)};
         var brand=new StackPanel {Orientation=Orientation.Horizontal,Margin=new Thickness(8,0,0,18)};
-        var logo=new Border {Width=36,Height=36,CornerRadius=new CornerRadius(10),
-            Background=new LinearGradientBrush(Ui.C("#34D399"),Ui.C("#0EA5E9"),new Point(0,0),new Point(1,1)),Child=Ui.Icon("shieldcheck",21,Brushes.White,2)};
-        brand.Children.Add(logo);
+        brand.Children.Add(Logo());
         var names=new StackPanel {Margin=new Thickness(11,0,0,0),VerticalAlignment=VerticalAlignment.Center};
         names.Children.Add(Ui.Text("Pixie Privacy Pro",14.5,"Text",FontWeights.SemiBold));
         deviceText=Ui.Text("EMEET PIXY",11.5,"Sub");names.Children.Add(deviceText);
@@ -244,6 +242,18 @@ public class ModernWindow : Window {
     }
     static void Show(UIElement element,bool visible) {element.Visibility=visible?Visibility.Visible:Visibility.Collapsed;}
     static string Join(List<string> apps) {return CapabilityUsage.Describe(apps);}
+    // The program icon lies next to the executable; the sidebar shows its sharpest frame for 36 px.
+    static string IconPath {get {return System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath),"PixiePrivacyPro.ico");}}
+    static FrameworkElement Logo() {
+        try {
+            var decoder=BitmapDecoder.Create(new Uri(IconPath),BitmapCreateOptions.None,BitmapCacheOption.OnLoad);
+            BitmapFrame best=null;
+            foreach(var frame in decoder.Frames) if(frame.PixelWidth>=72 && (best==null || frame.PixelWidth<best.PixelWidth)) best=frame;
+            if(best!=null) {var image=new Image {Width=36,Height=36,Source=best};RenderOptions.SetBitmapScalingMode(image,BitmapScalingMode.HighQuality);return image;}
+        } catch {}
+        return new Border {Width=36,Height=36,CornerRadius=new CornerRadius(10),
+            Background=new LinearGradientBrush(Ui.C("#34D399"),Ui.C("#0EA5E9"),new Point(0,0),new Point(1,1)),Child=Ui.Icon("shieldcheck",21,Brushes.White,2)};
+    }
     static Color OrbColor(int mode) {return mode==2?Ui.Green:mode<0?Ui.Gray:Ui.Red;}
     static string ShortTimer(int seconds) {
         if(seconds<0) return "—";
