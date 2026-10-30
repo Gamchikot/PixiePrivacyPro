@@ -581,7 +581,7 @@ public class ModernWindow : Window {
         if(trusted.Count==0) rows.Add(Ui.Row(L.T("Любая программа"),auto?L.T("Добавьте программы, чтобы сразу открывать камеру только им"):L.T("Действует, когда выбрано «Открывать сразу»"),null,null));
         foreach(string name in trusted) {string n=name;rows.Add(Ui.Row(n,L.T("Сама открывает камеру"),SmallButton(L.T("Убрать"),()=>app.RemoveTrusted(n)),null));}
         foreach(string name in readers) if(!PixieReaders.Contains(trusted,name)) {string n=name;rows.Add(Ui.Row(n,L.T("Сейчас читает камеру Pixie"),SmallButton(L.T("Добавить"),()=>app.AddTrusted(n)),null));}
-        rows.Add(Ui.Row(L.T("Добавить программу…"),L.T("Выберите её .exe на диске"),Ui.Value(""),()=>app.AddTrustedFromFile()));
+        rows.Add(Ui.Row(L.T("Добавить программу…"),L.T("Выберите её .exe; узнаётся по имени файла"),Ui.Value(""),()=>app.AddTrustedFromFile()));
         var list=Ui.List(rows.ToArray());
         list.IsEnabled=auto;list.Opacity=auto?1:.55;
         return list;

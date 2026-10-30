@@ -2,6 +2,20 @@
 
 All notable changes are listed here. Versions follow `version.txt`.
 
+## [0.15.6] — 2026-10-30
+
+**English**
+
+- Journal: a video stream starting or stopping is no longer marked "changed outside Pixie Pro" (own openings were shown as outside ones).
+- Trusted apps: the hint says apps are matched by file name.
+- README: honest wording for the microphone switch — it stays off until you, or a program running as you, turn it back on.
+
+**Русский**
+
+- Журнал: начало и конец видеопотока больше не помечаются «изменено не через Pixie Pro» (свои открытия выглядели чужими).
+- Доверенные программы: подсказка говорит, что программа узнаётся по имени файла.
+- README: честнее про микрофон — он выключен, пока его не включите вы или программа, работающая от вашего имени.
+
 ## [0.15.5] — 2026-10-29
 
 First public release. / Первый публичный релиз.
@@ -28,4 +42,5 @@ First public release. / Первый публичный релиз.
 - Статистика за сегодня и журнал с поиском (кто пользуется микрофоном, записывается только пока микрофон PIXY включён) и кнопкой «Очистить».
 - Стиль Windows 11, светлая и тёмная темы, русский и английский интерфейс; один MSI, который выбирает язык по Windows.
 
+[0.15.6]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.6
 [0.15.5]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.5

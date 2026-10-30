@@ -26,7 +26,7 @@
 
 The PIXY has a real privacy mode: the lens physically turns away. But nothing tells you when an app turns it back,
 apps open it the moment they touch the camera, and the microphone is always there. Pixie Privacy Pro keeps the lens
-closed unless **you** open it, shows you who is using the camera and microphone, and makes the camera answer only to you.
+closed until **you** open it, warns you if anything else does, and shows you who is using the camera and microphone.
 
 ## Features
 
@@ -36,7 +36,7 @@ closed unless **you** open it, shows you who is using the camera and microphone,
 | 🎥 **Pixie virtual camera** | Pick *Pixie Privacy Pro Camera* in Zoom, Telegram, OBS, Teams. While the lens is closed, apps see a lock picture (or your own picture) instead of you. A Media Foundation camera is added for the Windows Camera app and the new Teams. |
 | 🤝 **You decide who opens the lens** | *Show placeholder* — you open the lens yourself. *Open right away* — the lens rises when an app starts reading; limit it to trusted apps. |
 | 👁 **"I see you" warning** | If the lens opens outside Pixie Pro, a burning eye appears over all windows with a sound of your choice. Picture and sound switch on separately. |
-| 🎙 **Microphone off for real** | A small service disables only the PIXY recording device in Windows — not muted, gone — and keeps it off. Or turn it on with noise reduction, live sound or no processing. |
+| 🎙 **Microphone off for real** | A small service disables only the PIXY recording device in Windows — not muted, gone — and keeps it off until you, or a program running as you, turn it back on. Or turn it on with noise reduction, live sound or no processing. |
 | ⏱ **Closes by itself** | When nobody uses the camera, on Win+L, sleep and screen off, and by the camera's own timer — even when Pixie Pro is not running. The lens is lowered at power-on, before you sign in. |
 | 🖼 **Frame and mirror** | Preview with 1:1, 4:3, 16:9 and circle frames; only the chosen part goes to apps. Mirror, flip and gesture control are stored in the camera itself. |
 | 📊 **Journal** | Today's open time, openings and openings outside Pixie Pro, and a searchable log of who used the camera and microphone. |
@@ -105,7 +105,7 @@ The version comes from `version.txt`. GitHub Actions builds every push and makes
 
 **Can I use my own picture or sound?** Yes: *Appearance → Privacy picture* and *Warning → Which sound → Choose file*.
 
-**Is the microphone muted or disabled?** Disabled in Windows by a service, so no app can open it. It is a software switch, not a hardware one.
+**Is the microphone muted or disabled?** Disabled in Windows by a service, so apps cannot record from it. It stays off until you, or a program running under your account, turn it back on: it is a software switch, not a hardware one.
 
 ## Code signing
 

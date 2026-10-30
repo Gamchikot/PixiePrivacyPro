@@ -95,6 +95,8 @@ class UnitTests {
     static void Alerts() {
         Check(MainWindow.ShouldAlert(2,3,false) && MainWindow.ShouldAlert(2,1,false),"external exit from privacy alerts");
         Check(!MainWindow.ShouldAlert(2,0,true),"own action does not alert");
+        Check(MainWindow.StreamChange(3,0) && MainWindow.StreamChange(3,1) && MainWindow.StreamChange(0,3) && MainWindow.StreamChange(1,3),"video stream start and stop are not marked as outside changes");
+        Check(!MainWindow.StreamChange(2,3) && !MainWindow.StreamChange(2,0) && !MainWindow.StreamChange(0,1) && !MainWindow.StreamChange(3,2),"leaving privacy and tracking changes keep the outside mark");
         Check(!MainWindow.ShouldAlert(2,-1,false) && !MainWindow.ShouldAlert(1,1,false),"unknown or unchanged state does not alert");
         Check(MainWindow.ShouldAlertAtStartup(0,false) && MainWindow.ShouldAlertAtStartup(3,false),"open camera at startup alerts");
         Check(!MainWindow.ShouldAlertAtStartup(2,false) && !MainWindow.ShouldAlertAtStartup(-1,false),"privacy or unknown at startup does not alert");

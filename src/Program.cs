@@ -957,7 +957,7 @@ public class MainWindow : Form {
         if(closeAtStartup) BeginInvoke((MethodInvoker)async delegate {await ClosePrivacy(L.T("камера включилась вместе с компьютером"));});
         if(firstReading) EventJournal.Write(L.T("При запуске: ")+ModeName(value));
         else if(value==2 && lastKnown==3 && !ownAction && privacyTimer>0) EventJournal.Write(L.T("Объектив закрыт самой камерой: её не использовали ")+TimerName(privacyTimer).Replace(L.T("через "),""));
-        else if(value!=lastKnown) EventJournal.Write(ModeName(value)+(ownAction?"":L.T(" (изменено не через Pixie Pro)")));
+        else if(value!=lastKnown) EventJournal.Write(ModeName(value)+(ownAction||StreamChange(lastKnown,value)?"":L.T(" (изменено не через Pixie Pro)")));
         if(lastKnown==2 && value>=0 && value!=2) revealAt=DateTime.UtcNow+CaptureRules.RevealDelay;
         if(value==2) revealAt=DateTime.MinValue;
         firstReading=false;
@@ -978,6 +978,8 @@ public class MainWindow : Form {
         return value==2?L.T("Приватность включена"):value==3?L.T("Камера открыта, ожидание видео"):value==1?L.T("Камера открыта, автослежение"):L.T("Камера открыта, обычный режим");
     }
     public static bool ShouldAlert(int previous,int current,bool ownAction) {return !ownAction && previous==2 && current>=0 && current!=2;}
+    // Waiting (3) to streaming (0/1) and back is the camera following a video stream with the lens already open, not a change by anyone.
+    public static bool StreamChange(int previous,int current) {return (previous==3 && (current==0||current==1)) || ((previous==0||previous==1) && current==3);}
     public static bool ShouldAlertAtStartup(int current,bool ownAction) {return !ownAction && current>=0 && current!=2;}
     public static bool CloseAtStartup(int current,bool ownAction,bool autoPrivacy,bool consumer,int cameraApps) {
         return autoPrivacy && ShouldAlertAtStartup(current,ownAction) && !consumer && cameraApps==0;

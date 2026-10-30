@@ -278,7 +278,7 @@ public static class L {
         {"Сейчас читает камеру Pixie","Reading the Pixie camera now"},
         {"Добавить","Add"},
         {"Добавить программу…","Add app…"},
-        {"Выберите её .exe на диске","Choose its .exe on disk"},
+        {"Выберите её .exe; узнаётся по имени файла","Choose its .exe; matched by file name"},
         {"Когда приложение открывает камеру","When an app opens the camera"},
         {"Показывать заставку","Show placeholder"},
         {"Объектив открываю я сам — безопаснее","I open the lens myself — safer"},
