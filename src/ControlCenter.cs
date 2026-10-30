@@ -139,7 +139,7 @@ public class ControlCenter : Window {
         int mode=app.Mode;
         bool closed=mode==2;
         // The privacy tile always stays lit; only the symbol and its colour tell the state (as the orb on Home).
-        Paint(privacyTile,privacyIconBox,privacyTitle,privacySub,true,closed?"lock":mode<0?"question":"eye",closed?Ui.Green:mode<0?Ui.Gray:Ui.Red,
+        Paint(privacyTile,privacyIconBox,privacyTitle,privacySub,true,"pixy"+PixyArt.State(mode),closed?Ui.Green:mode<0?Ui.Gray:Ui.Red,
             L.T("Приватность"),closed?L.T("Объектив закрыт"):mode<0?L.T("Нет связи"):L.T("Камера открыта"));
         bool tracking=app.TrackingWanted;
         Paint(trackingTile,trackingIconBox,trackingTitle,trackingSub,tracking,"target",Ui.Blue,L.T("Автослежение"),
@@ -166,7 +166,7 @@ public class ControlCenter : Window {
         if(on) {tile.SetResourceReference(Border.BackgroundProperty,"TileOn");title.Foreground=Ui.B("#111318");sub.Foreground=Ui.B("#5D6470");}
         else {tile.SetResourceReference(Border.BackgroundProperty,"Tile");title.SetResourceReference(TextBlock.ForegroundProperty,"Text");sub.SetResourceReference(TextBlock.ForegroundProperty,"Sub");}
         iconBox.Background=Ui.B(on?color:Ui.Alpha(Ui.Gray,90));
-        if((string)iconBox.Tag!=icon) {iconBox.Tag=icon;iconBox.Child=Ui.Icon(icon,20,Brushes.White,2.2);}
+        if((string)iconBox.Tag!=icon) {iconBox.Tag=icon;iconBox.Child=icon.StartsWith("pixy")?PixyArt.Draw(int.Parse(icon.Substring(4)),32):Ui.Icon(icon,20,Brushes.White,2.2);}
         title.Text=name;sub.Text=state;
     }
     void PaintRound(Border box,bool on,string icon) {

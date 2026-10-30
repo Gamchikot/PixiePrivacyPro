@@ -2,6 +2,16 @@
 
 All notable changes are listed here. Versions follow `version.txt`.
 
+## [0.15.8] — 2026-10-30
+
+**English**
+
+- The Home orb and the privacy tile of the control center show the PIXY itself: with the lens closed the head is bowed with a green lock, with video the head looks at you with red glowing lenses and LED, while waiting for video the lenses are dark, and without a connection a white silhouette is shown. The tray icon is unchanged.
+
+**Русский**
+
+- Шар на главной и плитка приватности в пункте управления показывают саму PIXY: при закрытом объективе голова опущена и на ней зелёный замок, во время видео голова смотрит на вас, объективы и светодиод горят красным, в ожидании видео объективы тёмные, без связи — белый силуэт. Значок в трее не изменился.
+
 ## [0.15.7] — 2026-10-30
 
 **English**
@@ -60,6 +70,7 @@ First public release. / Первый публичный релиз.
 - Статистика за сегодня и журнал с поиском (кто пользуется микрофоном, записывается только пока микрофон PIXY включён) и кнопкой «Очистить».
 - Стиль Windows 11, светлая и тёмная темы, русский и английский интерфейс; один MSI, который выбирает язык по Windows.
 
+[0.15.8]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.8
 [0.15.7]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.7
 [0.15.6]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.6
 [0.15.5]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.5

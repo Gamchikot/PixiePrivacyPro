@@ -299,7 +299,7 @@ public class ModernWindow : Window {
         var orb=new Ellipse {Width=164,Height=164,Fill=brush,Effect=orbGlow};
         var shine=new Ellipse {Width=164,Height=164,IsHitTestVisible=false,
             Fill=new LinearGradientBrush(Color.FromArgb(70,255,255,255),Color.FromArgb(0,255,255,255),new Point(.5,0),new Point(.5,.55))};
-        orbIcon=new ContentControl {Width=66,Height=66,IsHitTestVisible=false};
+        orbIcon=new ContentControl {Width=118,Height=70,IsHitTestVisible=false};
         orbBox.Children.Add(orbHalo);orbBox.Children.Add(orbRing);orbBox.Children.Add(orb);orbBox.Children.Add(shine);orbBox.Children.Add(orbIcon);
         var press=new ScaleTransform(1,1);
         var button=new Button {Style=Ui.Style("Bare"),Content=orbBox,HorizontalAlignment=HorizontalAlignment.Center,RenderTransform=press,RenderTransformOrigin=new Point(.5,.5),ToolTip=L.T("Переключить приватность")};
@@ -330,7 +330,7 @@ public class ModernWindow : Window {
         t.BeginAnimation(ScaleTransform.ScaleXProperty,a);t.BeginAnimation(ScaleTransform.ScaleYProperty,a);
     }
     void SetOrb(int mode) {
-        int state=mode==2?2:mode<0?-1:1;
+        int state=PixyArt.State(mode);
         if(state==orbState) return;
         bool first=orbState==-9;orbState=state;
         Color c=OrbColor(mode);
@@ -339,9 +339,9 @@ public class ModernWindow : Window {
         for(int i=0;i<3;i++) orbStops[i].BeginAnimation(GradientStop.ColorProperty,new ColorAnimation(stops[i],duration));
         orbGlow.BeginAnimation(DropShadowEffect.ColorProperty,new ColorAnimation(c,duration));
         orbRing.Stroke=Ui.B(Ui.Alpha(c,150));orbHalo.Stroke=Ui.B(Ui.Alpha(c,60));
-        Ui.Pulse(orbRing,state==1?1.3:2.4,1.22);
-        // The lock turns into the eye: the old symbol shrinks away, the new one springs in.
-        var icon=Ui.Icon(state==2?"lock":state==1?"eye":"question",66,Brushes.White,2.1);
+        Ui.Pulse(orbRing,state==2||state==-1?2.4:1.3,1.22);
+        // The bowed head with the lock turns into the head looking at you: the old picture shrinks away, the new one springs in.
+        var icon=PixyArt.Draw(state,118);
         var scale=new ScaleTransform(.6,.6);icon.RenderTransform=scale;icon.RenderTransformOrigin=new Point(.5,.5);
         orbIcon.Content=icon;
         var grow=new DoubleAnimation(.6,1,TimeSpan.FromSeconds(first?0:.5)) {EasingFunction=new BackEase {Amplitude=.5,EasingMode=EasingMode.EaseOut}};
