@@ -77,6 +77,8 @@ public sealed class VirtualOutput : IDisposable {
     }}
     public bool MfConsumerActive {get {try { return mf.ConsumerActive; } catch(Exception) { return false; }}}
     void MarkConsumer() {Interlocked.Exchange(ref lastWant,DateTime.UtcNow.Ticks);}
+    // True when a DirectShow app has asked for a frame since the last check.
+    public bool Wanted() {if(!want.WaitOne(0)) return false; MarkConsumer(); return true;}
     readonly MfFrameWriter mf=new MfFrameWriter();
     public bool Send(Bitmap image) {
         // The Media Foundation camera gets the same frame.
@@ -204,8 +206,14 @@ public sealed class VideoPipeline : IDisposable {
     }}
     // Keeps the virtual cameras fed while no camera frames arrive (privacy, start-up, stalled capture).
     long lastFrame;
+    // Without readers the placeholder is refreshed once a second; an app asking for a frame gets it on the next tick.
+    long lastPulse;
     public void PulseClosed() {lock(gate) {
-        if(!LiveLocked() && output!=null) sender.Send(output);
+        if(LiveLocked() || output==null) return;
+        long now=DateTime.UtcNow.Ticks;
+        if(!sender.ConsumerActive && !sender.Wanted() && now-lastPulse<TimeSpan.TicksPerSecond) return;
+        lastPulse=now;
+        sender.Send(output);
     }}
     // True while camera frames reach the apps (not the privacy picture).
     public bool Live {get {lock(gate) return LiveLocked();}}

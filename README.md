@@ -83,6 +83,8 @@ Video flows by itself while the app reads the camera. Keep Pixie Pro running —
 - The microphone service (`PixiePrivacyProMicGuard`) disables only the PIXY audio interface (VID 328F, PID 00C0, MI_02). Other microphones are never touched.
 - Everything runs locally. No network, no telemetry, no video written to disk.
 
+Every feature in detail: [docs/DETAILS.md](docs/DETAILS.md).
+
 ## Build from source
 
 ```powershell

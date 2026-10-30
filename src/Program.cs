@@ -378,6 +378,7 @@ public class MainWindow : Form {
     public bool AlertRunning {get {return (alert!=null && !alert.IsDisposed) || DateTime.UtcNow<soundUntil;}}
     public bool AlertEnabled {get {return Preferences.GetFlag(Preferences.AlertPicture,true) || Preferences.GetFlag(Preferences.AlertSound,false);}}
     public void ShowJournalFile() {OpenJournal();}
+    public void ShowError(string text) {tray.ShowBalloonTip(6000,"Pixie Privacy Pro",L.T("Внутренняя ошибка, защита продолжает работать: ")+text,ToolTipIcon.Warning);}
     public void ClearJournal() {EventJournal.Clear(L.T("Журнал очищен"));}
     public void SetCropShape(string shape) {shapes.SelectedItem=shape;}
     public void SetCropSize(int percent) {size.Value=Math.Max(size.Minimum,Math.Min(size.Maximum,percent));}
@@ -1117,6 +1118,12 @@ static class Program {
     // Signalled by a second start; the broadcast window message alone did not always reach the hidden tray window.
     const string ShowEventName="Local\\PixiePrivacyPro.Show";
     public static EventWaitHandle ShowEvent;
+    static MainWindow main;
+    static void ReportError(Exception error,bool fatal) {
+        string text=error==null?"?":error.GetType().Name+": "+error.Message;
+        try {EventJournal.Write((fatal?L.T("Pixie Privacy Pro остановлена из-за ошибки: "):L.T("Внутренняя ошибка: "))+text);} catch {}
+        if(!fatal && main!=null) try {main.ShowError(text);} catch {}
+    }
     [DllImport("user32.dll")] static extern bool AllowSetForegroundWindow(int processId);
     [STAThread] static void Main(string[] args) {
         if(Array.IndexOf(args,"--cleanup")>=0) {Cleanup();return;}
@@ -1141,7 +1148,11 @@ static class Program {
             }
             ShowEvent=new EventWaitHandle(false,EventResetMode.AutoReset,ShowEventName);
             Application.EnableVisualStyles();Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow(Array.IndexOf(args,"--tray")>=0));
+            // An unexpected error is written to the journal and shown in the tray; the window keeps watching the camera.
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            Application.ThreadException+=(s,e)=>ReportError(e.Exception,false);
+            AppDomain.CurrentDomain.UnhandledException+=(s,e)=>ReportError(e.ExceptionObject as Exception,true);
+            Application.Run(main=new MainWindow(Array.IndexOf(args,"--tray")>=0));
         }
     }
     // Run by the uninstaller as the current user: drop autostart and close the running tray app.

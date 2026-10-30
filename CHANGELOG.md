@@ -2,6 +2,24 @@
 
 All notable changes are listed here. Versions follow `version.txt`.
 
+## [0.15.7] — 2026-10-30
+
+**English**
+
+- An unexpected error no longer stops the program silently: it is written to the journal and shown in the tray, and the window keeps watching the camera.
+- The installer is about 10 times smaller: the AForge.NET source code is published next to it in each release instead of inside it.
+- The virtual camera's debug log moved from the shared ProgramData folder to the temp folder of the account that loads it.
+- The placeholder is sent to the virtual cameras once a second while no app reads them (it was 8 times a second).
+- Build: GitHub Actions are pinned to exact commits. English version of the detailed description (docs/DETAILS.md).
+
+**Русский**
+
+- Неожиданная ошибка больше не останавливает программу молча: она пишется в журнал и показывается в трее, а окно продолжает следить за камерой.
+- Установщик примерно в 10 раз меньше: исходники AForge.NET выкладываются рядом с ним в каждом релизе, а не внутри.
+- Отладочный журнал виртуальной камеры перенесён из общей папки ProgramData во временную папку учётной записи, которая его загружает.
+- Пока виртуальные камеры никто не читает, заставка отправляется раз в секунду (было 8 раз в секунду).
+- Сборка: действия GitHub Actions закреплены на точных коммитах. Подробное описание на английском (docs/DETAILS.md).
+
 ## [0.15.6] — 2026-10-30
 
 **English**
@@ -42,5 +60,6 @@ First public release. / Первый публичный релиз.
 - Статистика за сегодня и журнал с поиском (кто пользуется микрофоном, записывается только пока микрофон PIXY включён) и кнопкой «Очистить».
 - Стиль Windows 11, светлая и тёмная темы, русский и английский интерфейс; один MSI, который выбирает язык по Windows.
 
+[0.15.7]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.7
 [0.15.6]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.6
 [0.15.5]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.5

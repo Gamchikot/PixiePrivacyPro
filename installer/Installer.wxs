@@ -34,7 +34,6 @@
      <File Id="AppIconFile" Source="PixiePrivacyPro.ico" />
      <File Id="VoiceSound" Source="dark-voice.mp3" />
      <File Source="README.md" /><File Source="LICENSE" Name="LICENSE.txt" /><File Source="HIDAPI-LICENSE.txt" /><File Source="UNITYCAPTURE-LICENSE.txt" /><File Source="AFORGE-License.txt" /><File Source="AFORGE-lgpl-3.0.txt" /><File Source="AFORGE-gpl-3.0.txt" /><File Source="THIRD-PARTY.txt" />
-     <File Source="AForge.NET-source.zip" />
     </Component>
     <Component Id="Guard" Guid="81F590D4-994C-4204-8399-EC8B90B12392" Win64="yes">
      <File Id="GuardExe" Source="PixieMicGuard.exe" KeyPath="yes" />

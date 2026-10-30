@@ -445,6 +445,9 @@ public static class L {
         {"Нужен файл MP3, WAV или WMA.","An MP3, WAV or WMA file is needed."},
         {"Пробел","Space"},
         {"нет","none"},
-        {"Круг","Circle"}
+        {"Круг","Circle"},
+        {"Pixie Privacy Pro остановлена из-за ошибки: ","Pixie Privacy Pro stopped because of an error: "},
+        {"Внутренняя ошибка: ","Internal error: "},
+        {"Внутренняя ошибка, защита продолжает работать: ","Internal error, protection keeps working: "}
     };
 }

@@ -89,11 +89,11 @@ static void Log(const char* format, ...) {
     va_end(args);
     strcat(text, "\r\n");
     OutputDebugStringA(text);
-    wchar_t path[MAX_PATH];
-    if (FAILED(SHGetFolderPathW(nullptr, CSIDL_COMMON_APPDATA, nullptr, 0, path))) return;
-    wcscat(path, L"\\PixiePrivacyPro");
-    CreateDirectoryW(path, nullptr);
-    wcscat(path, L"\\vcam.log");
+    // The temp folder of the hosting account (LocalService for the Frame Server): no other user can redirect it.
+    wchar_t path[MAX_PATH + 32];
+    DWORD length = GetTempPathW(MAX_PATH, path);
+    if (length == 0 || length > MAX_PATH) return;
+    wcscat(path, L"PixieVirtualCamera.log");
     HANDLE file = CreateFileW(path, FILE_APPEND_DATA, FILE_SHARE_READ | FILE_SHARE_WRITE, nullptr, OPEN_ALWAYS, 0, nullptr);
     if (file == INVALID_HANDLE_VALUE) return;
     LARGE_INTEGER size;

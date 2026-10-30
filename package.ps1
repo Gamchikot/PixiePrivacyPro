@@ -31,6 +31,8 @@ try {
     & cscript.exe //nologo .\installer\installer-languages.vbs $msiPath $built['ru'] $mst ($russian -join ',')
     if($LASTEXITCODE -ne 0){throw 'Embedding the Russian transform failed'}
     Remove-Item $built['en'],$built['ru'],$mst,.\dist\Installer-*.wixpdb,.\dist\Installer-*.wixobj -ErrorAction SilentlyContinue
+    # The AForge.NET source (LGPL) is published next to the installer instead of inside it.
+    Copy-Item .\third_party\AForge.NET-source.zip .\dist\AForge.NET-2.2.5-source.zip -Force
     $msis=@($msi)
     Get-FileHash $msis | Select-Object Hash,@{n='File';e={Split-Path $_.Path -Leaf}} | ConvertTo-Json | Set-Content ".\dist\SHA256-$version.json"
 } finally {Pop-Location}
