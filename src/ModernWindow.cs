@@ -687,7 +687,7 @@ public class ModernWindow : Window {
     }
 
     // ---------- camera ----------
-    Border gestureHelp;ToggleButton hwMirrorPill,hwFlipPill,gesturesPill,trackingPill2;Segments timerSegments;TextBlock timerCaption;
+    Border gestureHelp;ToggleButton hwMirrorPill,hwFlipPill,gesturesPill,trackingPill2;Segments timerSegments,powerSegments;TextBlock timerCaption;
     FrameworkElement CameraPage() {
         string[] names=new string[MainWindow.TimerChoices.Length];
         for(int i=0;i<names.Length;i++) names[i]=ShortTimer(MainWindow.TimerChoices[i]);
@@ -695,9 +695,11 @@ public class ModernWindow : Window {
         timerCaption=Ui.Text(L.T("Если камеру не используют и никто не управляет ею по USB, она сама опускает объектив. Работает и без Pixie Pro, во время звонка не срабатывает."),12.5,"Sub");
         timerCaption.TextWrapping=TextWrapping.Wrap;timerCaption.TextTrimming=TextTrimming.None;timerCaption.Margin=new Thickness(4,10,4,2);
         var timerCard=Ui.Card(Stack(timerSegments,timerCaption));timerCard.Padding=new Thickness(12);
+        powerSegments=new Segments(new[]{MainWindow.PowerLineName(PowerLine.Hz50),MainWindow.PowerLineName(PowerLine.Hz60)},i=>Run(app.ChoosePowerLine(i+1)));powerSegments.Width=150;
         var left=Stack(
             Ui.Header(L.T("Изображение")),
             Ui.List(Ui.Row(L.T("Перевернуть"),L.T("Если камера висит вверх ногами"),hwFlipPill=Ui.Pill(on=>Run(app.ChooseHardwareFlip(on))),null),
+                    Ui.Row(L.T("Против мерцания"),L.T("Частота сети: в России 50 Гц"),powerSegments,null),
                     Ui.Row(L.T("Управление жестами"),L.T("Включать автослежение ладонью"),gesturesPill=Ui.Pill(on=>Run(app.ChooseGestures(on))),null)),
             GestureHelp(),
             Ui.Header(L.T("Автослежение")),
@@ -709,6 +711,7 @@ public class ModernWindow : Window {
             hwFlipPill.IsChecked=app.HardwareFlip==1;hwFlipPill.IsEnabled=app.HardwareFlip>=0;
             gesturesPill.IsChecked=app.GesturesState==1;gesturesPill.IsEnabled=app.GesturesState>=0;
             Show(gestureHelp,app.GesturesState==1);
+            powerSegments.Select(app.PowerLineState-1);
             timerSegments.Select(Array.IndexOf(MainWindow.TimerChoices,app.CameraTimer));timerSegments.IsEnabled=app.CameraTimer>=0;
             trackingPill2.IsChecked=app.TrackingWanted;trackingPill2.IsEnabled=!app.Busy && (app.Mode==0||app.Mode==1||app.Mode==3);
             RenderPreview();

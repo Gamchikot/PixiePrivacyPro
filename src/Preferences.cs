@@ -13,7 +13,7 @@ public static class Preferences {
     public const string Tracking="Tracking",AutoPrivacy="AutoPrivacy",AutoOpen="AutoOpen",MfCamera="MfCamera",LockPrivacy="LockPrivacy",AlertSound="AlertSound",AlertPicture="AlertPicture",Language="Language",HotKey="HotKey",CameraTimerChosen="CameraTimerChosen";
     public const string HotKeyModifiers="HotKeyModifiers",HotKeyKey="HotKeyKey",AlertSoundKind="AlertSoundKind";
     // Theme: 0 as in Windows, 1 light, 2 dark. TrackingTrayIcon: the second tray icon, off by default.
-    public const string Theme="Theme",TrackingTrayIcon="TrackingTrayIcon";
+    public const string Theme="Theme",TrackingTrayIcon="TrackingTrayIcon",PowerLine="PowerLine";
     const string TrustedValue="TrustedApps";
     public static readonly string DataFolder=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"PixiePrivacyPro");
     static string CropFile {get {return Path.Combine(DataFolder,"crop.xml");}}

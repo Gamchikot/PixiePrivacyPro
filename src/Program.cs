@@ -44,12 +44,13 @@ public class MainWindow : Form {
     CheckBox gestureBox=new CheckBox(),hwMirrorBox=new CheckBox(),hwFlipBox=new CheckBox(),hotKeyBox=new CheckBox();
     ToolStripMenuItem menuTimer=new ToolStripMenuItem(L.T("Камера сама закрывается")),menuMic=new ToolStripMenuItem(L.T("Микрофон камеры"));
     ToolStripMenuItem menuGestures=new ToolStripMenuItem(L.T("Управление жестами")),menuHwMirror=new ToolStripMenuItem(L.T("Зеркально в самой камере")),menuHwFlip=new ToolStripMenuItem(L.T("Перевернуть изображение"));
+    ToolStripMenuItem menuPowerLine=new ToolStripMenuItem(L.T("Частота сети (против мерцания)"));
     ToolStripMenuItem menuHotKey=new ToolStripMenuItem(L.T("Горячая клавиша"));
     ComboBox hotKeyModifiers=new ComboBox(),hotKeyKey=new ComboBox(),soundKind=new ComboBox();
     static readonly string[] SoundNames={L.T("Стандартный: гул и голос"),L.T("Стандартный: зловещий голос"),L.T("Свой звук")};
     static readonly int[] TimerSeconds={0,10,30,60,300,900};
     static readonly string[] MicNames={L.T("Отключён полностью"),L.T("Шумоподавление"),L.T("Живой звук"),L.T("Оригинал (без обработки)")};
-    int privacyTimer=-1,audioMode=-1,gestures=-1,hwMirror=-1,hwFlip=-1;
+    int privacyTimer=-1,audioMode=-1,gestures=-1,hwMirror=-1,hwFlip=-1,powerLine=-1;
     bool settingsLoading,settingsRead,hotKeyRegistered;
     DateTime nextCameraPoll=DateTime.MinValue,revealAt=DateTime.MinValue;
     const int HotKeyId=1;
@@ -222,7 +223,8 @@ public class MainWindow : Form {
         var menuCamera=new ToolStripMenuItem(L.T("Камера и микрофон"));
         for(int i=0;i<TimerSeconds.Length;i++) {int seconds=TimerSeconds[i];menuTimer.DropDownItems.Add(TimerName(seconds),null,async delegate {await SetPrivacyTimer(seconds);});}
         for(int i=0;i<MicNames.Length;i++) {int choice=i;menuMic.DropDownItems.Add(MicNames[i],null,async delegate {await SetMicrophone(choice);});}
-        menuCamera.DropDownItems.AddRange(new ToolStripItem[]{menuTimer,menuMic,new ToolStripSeparator(),menuGestures,menuHwMirror,menuHwFlip});
+        foreach(int hz in new[]{PowerLine.Hz50,PowerLine.Hz60}) {int value=hz;menuPowerLine.DropDownItems.Add(PowerLineName(value),null,async delegate {await SetPowerLine(value);});}
+        menuCamera.DropDownItems.AddRange(new ToolStripItem[]{menuTimer,menuMic,menuPowerLine,new ToolStripSeparator(),menuGestures,menuHwMirror,menuHwFlip});
         settings.Add(menuCamera);
         menuGestures.Click+=async delegate {await SetGestures(gestures!=1);};
         menuHwMirror.Click+=async delegate {await SetCameraFeature(1,hwMirror!=1);};
@@ -254,6 +256,7 @@ public class MainWindow : Form {
             menuGestures.Checked=gestures==1;menuGestures.Enabled=gestures>=0;
             menuHwMirror.Checked=hwMirror==1;menuHwMirror.Enabled=hwMirror>=0;
             menuHwFlip.Checked=hwFlip==1;menuHwFlip.Enabled=hwFlip>=0;
+            for(int i=0;i<2;i++) ((ToolStripMenuItem)menuPowerLine.DropDownItems[i]).Checked=i+1==PowerLineState;
         };
         // Menu items flip the same settings as the window controls; RenderSettings keeps both in sync.
         menuMfCamera.Click+=async delegate {await SetMfCamera(!mfCameraActive);};
@@ -305,6 +308,8 @@ public class MainWindow : Form {
     public int GesturesState {get {return gestures;}}
     public int HardwareMirror {get {return hwMirror;}}
     public int HardwareFlip {get {return hwFlip;}}
+    // The user's choice once made, otherwise what the camera reports; 0 or less while unknown.
+    public int PowerLineState {get {int wanted=Preferences.GetInt(Preferences.PowerLine,0);return wanted>0?wanted:powerLine;}}
     public bool MfCameraOn {get {return mfCameraActive;}}
     public bool MfCameraWanted {get {return Preferences.GetFlag(Preferences.MfCamera,true);}}
     public bool MfCameraBusy {get {return mfPending>0;}}
@@ -327,6 +332,7 @@ public class MainWindow : Form {
     public Task ChooseGestures(bool on) {return SetGestures(on);}
     public Task ChooseHardwareMirror(bool on) {return SetCameraFeature(1,on);}
     public Task ChooseHardwareFlip(bool on) {return SetCameraFeature(2,on);}
+    public Task ChoosePowerLine(int value) {return SetPowerLine(value);}
     public Task ChooseMfCamera(bool on) {return SetMfCamera(on);}
     public Task Quit() {return ExitApp();}
     // The language is read once at startup, so a new choice restarts the app; it reopens on the Appearance page.
@@ -455,6 +461,7 @@ public class MainWindow : Form {
         try {gestures=camera.Gestures()?1:0;} catch {}
         try {hwMirror=camera.Feature(1)?1:0;} catch {}
         try {hwFlip=camera.Feature(2)?1:0;} catch {}
+        try {powerLine=PowerLine.Read();} catch {}
     }
     async Task LoadCameraSettings() {
         if(settingsLoading||exiting||layoutOnly) return;
@@ -501,6 +508,21 @@ public class MainWindow : Form {
     async Task SetGestures(bool on) {await ChangeCamera(L.T("Управление жестами ")+(on?L.T("включено"):L.T("выключено")),camera=>camera.SetGestures(on));}
     async Task SetCameraFeature(int id,bool on) {
         await ChangeCamera((id==1?L.T("Зеркально в самой камере"):L.T("Переворот изображения"))+(on?L.T(": включено"):L.T(": выключено")),camera=>camera.SetFeature(id,on));
+    }
+    public static string PowerLineName(int value) {return value==PowerLine.Hz60?L.T("60 Гц"):L.T("50 Гц");}
+    // Anti-flicker. The camera takes the value only while it streams, so the choice is saved and applied again when video starts.
+    async Task SetPowerLine(int value) {
+        SetPreference(()=>Preferences.SetInt(Preferences.PowerLine,value));
+        int now=0;
+        try {now=await Task.Run(()=>PowerLine.Write(value));} catch {}
+        if(now>0) powerLine=now;
+        EventJournal.Write(L.T("Частота сети: ")+PowerLineName(value)+(now==value?"":L.T(" (применится, когда камера включит видео)")));
+        if(!exiting) RenderCameraSettings();
+    }
+    void ApplyPowerLine() {
+        int wanted=Preferences.GetInt(Preferences.PowerLine,0);
+        if(wanted<=0 || layoutOnly) return;
+        Task.Run(()=>{try {powerLine=PowerLine.Read();if(powerLine!=wanted) powerLine=PowerLine.Write(wanted);} catch {}});
     }
     // "Disabled" switches the endpoint off in Windows through the service; a processing mode allows it again.
     async Task SetMicrophone(int choice) {
@@ -959,6 +981,7 @@ public class MainWindow : Form {
         if(firstReading) EventJournal.Write(L.T("При запуске: ")+ModeName(value));
         else if(value==2 && lastKnown==3 && !ownAction && privacyTimer>0) EventJournal.Write(L.T("Объектив закрыт самой камерой: её не использовали ")+TimerName(privacyTimer).Replace(L.T("через "),""));
         else if(value!=lastKnown) EventJournal.Write(ModeName(value)+(ownAction||StreamChange(lastKnown,value)?"":L.T(" (изменено не через Pixie Pro)")));
+        if((value==0||value==1) && lastKnown!=0 && lastKnown!=1) ApplyPowerLine();
         if(lastKnown==2 && value>=0 && value!=2) revealAt=DateTime.UtcNow+CaptureRules.RevealDelay;
         if(value==2) revealAt=DateTime.MinValue;
         firstReading=false;

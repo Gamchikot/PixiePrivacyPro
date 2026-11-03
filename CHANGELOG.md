@@ -2,6 +2,16 @@
 
 All notable changes are listed here. Versions follow `version.txt`.
 
+## [0.15.10] — 2026-11-03
+
+**English**
+
+- Anti-flicker: choose the mains frequency (50 or 60 Hz) on the Camera page or in the tray menu ("Settings → Camera and microphone → Mains frequency"). It stops the picture from flickering under lamps. The camera accepts the value only while streaming, so Pro saves the choice and applies it again when video starts.
+
+**Русский**
+
+- Защита от мерцания: частота сети (50 или 60 Гц) на странице «Камера» или в меню трея («Настройки → Камера и микрофон → Частота сети»). Убирает мерцание изображения под лампами. Камера принимает значение только во время видео, поэтому Pro запоминает выбор и применяет его снова, когда начинается видео.
+
 ## [0.15.9] — 2026-10-30
 
 **English**
@@ -80,6 +90,7 @@ First public release. / Первый публичный релиз.
 - Статистика за сегодня и журнал с поиском (кто пользуется микрофоном, записывается только пока микрофон PIXY включён) и кнопкой «Очистить».
 - Стиль Windows 11, светлая и тёмная темы, русский и английский интерфейс; один MSI, который выбирает язык по Windows.
 
+[0.15.10]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.10
 [0.15.9]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.9
 [0.15.8]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.8
 [0.15.7]: https://github.com/Gamchikot/PixiePrivacyPro/releases/tag/v0.15.7
